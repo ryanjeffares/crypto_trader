@@ -16,5 +16,5 @@ if __name__ == "__main__":
         for trader in traders:
             trader.tick()
             print('==========================')
-        time.sleep(300)
+        time.sleep(60)
      
