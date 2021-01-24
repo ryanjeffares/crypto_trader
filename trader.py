@@ -50,7 +50,7 @@ class Trader:
         # if the sell price is up at all, sell a small amount
                 
         if bid < (self.previous_bid * 0.92):
-            if self.usdt_balance >= 11: 
+            if (self.usdt_balance * 0.25) >= 10: 
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'buy', (self.usdt_balance * 0.25) / bid)
                     print('Created buy order {0} on {1}'.format(response['id'], self.symbol))
@@ -103,21 +103,18 @@ class Trader:
                     return
             else:
                 print(self.coin + ' balance too low to create trade...')  
-        elif ask > (self.previous_ask * 1.08):
-            if self.coin_balance >= (11 / ask):
-                try:                    
-                    response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
-                    print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
-                    id = response['id'] + '-SELL_ALL.txt'                    
-                    with open(os.path.join('orders/', id), 'w') as file:
-                        file.write(json.dumps(response))                    
-                    self.get_balances()
-                except Exception as e:
-                    print('Error occured selling on ' + self.symbol)
-                    print(e)                    
-                    return
-            else:
-                print(self.coin + ' balance too low to create trade...')        
+        elif ask > (self.previous_ask * 1.08)
+            try:                    
+                response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
+                print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
+                id = response['id'] + '-SELL_ALL.txt'                    
+                with open(os.path.join('orders/', id), 'w') as file:
+                    file.write(json.dumps(response))                    
+                self.get_balances()
+            except Exception as e:
+                print('Error occured selling on ' + self.symbol)
+                print(e)                    
+                return      
         else:
             print('Curret sell price is not less than previous one, returning...')  
 
