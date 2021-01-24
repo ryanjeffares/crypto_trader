@@ -103,7 +103,7 @@ class Trader:
                     return
             else:
                 print(self.coin + ' balance too low to create trade...')  
-        elif ask > (self.previous_ask * 1.08)
+        elif ask >= (self.previous_ask * 1.08):
             try:                    
                 response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
                 print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
