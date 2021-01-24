@@ -44,11 +44,30 @@ class Trader:
         print('Ask price of {0} is: {1}'.format(self.coin, ask))
 
         # this is suuuper basic, basically every tick check the prices
-        # if the buy price is down 8% since the last time we bought, buy a small amount
-        # if the sell price is up 8% since the last time we bought, sell a small amount
-        # if the sell price is up 12%, sell everything we have
+        # if the buy price is down 8% since the last time we bought, buy a for 25% of our USDT balance
+        # if the buy price is down at all, buy a very small amount
+        # if the sell price is up 8% since the last time we bought, sell everything we have
+        # if the sell price is up at all, sell a small amount
                 
         if bid < (self.previous_bid * 0.92):
+            if self.usdt_balance >= 11: 
+                try:                    
+                    response = exchange.create_order(self.symbol, 'market', 'buy', (self.usdt_balance * 0.25) / bid)
+                    print('Created buy order {0} on {1}'.format(response['id'], self.symbol))
+                    id = response['id'] + '-BUY.txt'  
+                    with open(os.path.join('orders/', id), 'w') as file:
+                        file.write(json.dumps(response))
+                    self.previous_bid = bid
+                    self.previous_ask = ask # remember what the sell price is only when we buy, as that is the value of our coin
+                    self.get_balances()
+                except Exception as e:
+                    print('Error occured buying on ' + self.symbol)
+                    print(e)                    
+                    return
+            else:
+                print('USDT balance too low to create trade...')
+            return
+        elif bid < self.previous_bid:
             if self.usdt_balance >= 11: 
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'buy', 11 / bid)
@@ -69,7 +88,7 @@ class Trader:
         else:
             print('Current buy price is not less than previous one, checking sell price...')
         
-        if ask > (self.previous_ask * 1.08):
+        if ask > self.previous_ask:
             if self.coin_balance >= (11 / ask):
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'sell', 11 / ask)
@@ -84,7 +103,7 @@ class Trader:
                     return
             else:
                 print(self.coin + ' balance too low to create trade...')  
-        elif ask > (self.previous_ask * 1.12):
+        elif ask > (self.previous_ask * 1.08):
             if self.coin_balance >= (11 / ask):
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)

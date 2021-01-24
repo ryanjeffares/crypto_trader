@@ -1,12 +1,12 @@
 import ccxt
-import keys
+import keys # make a keys.py file that holds public_key and secret_key for the desired exchange
 
 # global exchange information
 exchange_id = 'binance'
 exchange_class = getattr(ccxt, exchange_id)
 exchange = exchange_class({
-    'apiKey': keys.binance_public_key,
-    'secret': keys.binance_secret_key,
+    'apiKey': keys.public_key,
+    'secret': keys.secret_key,
     'timeout': 30000,
     'enableRateLimit': True
 })
