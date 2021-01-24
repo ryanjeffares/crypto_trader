@@ -5,16 +5,21 @@ from exchange import get_full_balance
 # put whichever coins you want to trade on in a list, and create a trader class for each
 # tick every minute
 if __name__ == "__main__":
-    get_full_balance()
-    coins = ['LINK','BNB','ETH','BTC']
-    traders = list()
+    try:    # network errors do be wildin so lots of try/except
+        get_full_balance()
+        coins = ['1INCH','BNB','ETH','BTC']
+        traders = list()
 
-    for coin in coins:
-        traders.append(Trader(coin))
+        for coin in coins:
+            traders.append(Trader(coin))
 
-    while True:
-        for trader in traders:
-            trader.tick()
-            print('==========================')
-        time.sleep(60)
-     
+        while True:
+            for trader in traders:
+                try:    
+                    trader.tick()
+                except Exception as e:
+                    print(e)
+                print('==========================')
+            time.sleep(60)
+    except Exception as e:
+        print(e)

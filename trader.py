@@ -36,7 +36,8 @@ class Trader:
                     print('Balance of {0} is {1}'.format(self.coin, free))
 
     # call this to check the changes in prices since last tick, and execute trades if you want to
-    def tick(self):       
+    def tick(self):    
+        self.get_balances()   
         info = exchange.fetch_ticker(self.symbol)
         bid = float(info['bid'])   # buy price        
         ask = float(info['ask'])   # sell price
@@ -61,11 +62,11 @@ class Trader:
                     self.previous_ask = ask # remember what the sell price is only when we buy, as that is the value of our coin
                     self.get_balances()
                 except Exception as e:
-                    print('Error occured buying on ' + self.symbol)
+                    print('Error occured buying large on ' + self.symbol)
                     print(e)                    
                     return
             else:
-                print('USDT balance too low to create trade...')
+                print('USDT balance too low to buy large...')
             return
         elif bid < self.previous_bid:
             if self.usdt_balance >= 11: 
@@ -83,36 +84,37 @@ class Trader:
                     print(e)                    
                     return
             else:
-                print('USDT balance too low to create trade...')
+                print('USDT balance too low to buy...')
             return
         else:
             print('Current buy price is not less than previous one, checking sell price...')
         
-        if ask > self.previous_ask:
-            if self.coin_balance >= (11 / ask):
-                try:                    
-                    response = exchange.create_order(self.symbol, 'market', 'sell', 11 / ask)
-                    print('Created sell order {0} on {1}'.format(response['id'], self.symbol))
-                    id = response['id'] + '-SELL.txt'                    
-                    with open(os.path.join('orders/', id), 'w') as file:
-                        file.write(json.dumps(response))                    
-                    self.get_balances()
-                except Exception as e:
-                    print('Error occured selling on ' + self.symbol)
-                    print(e)                    
-                    return
-            else:
-                print(self.coin + ' balance too low to create trade...')  
-        elif ask >= (self.previous_ask * 1.08):
+        #if ask > self.previous_ask:
+        #    if self.coin_balance >= (11 / ask):
+        #        try:                    
+        #            response = exchange.create_order(self.symbol, 'market', 'sell', 11 / ask)
+        #            print('Created sell order {0} on {1}'.format(response['id'], self.symbol))
+        #            id = response['id'] + '-SELL.txt'                    
+        #            with open(os.path.join('orders/', id), 'w') as file:
+        #                file.write(json.dumps(response))                    
+        #            self.get_balances()
+        #        except Exception as e:
+        #            print('Error occured selling on ' + self.symbol)
+        #            print(e)                    
+        #            return
+        #    else:
+        #        print(self.coin + ' balance too low to sell...')  
+        if ask >= (self.previous_ask * 1.08):
             try:                    
                 response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
                 print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
                 id = response['id'] + '-SELL_ALL.txt'                    
                 with open(os.path.join('orders/', id), 'w') as file:
-                    file.write(json.dumps(response))                    
-                self.get_balances()
+                    file.write(json.dumps(response))  
+                self.previous_bid = bid # record buy price at the time we sell, so that we only buy more if its less than what we last sold for - does that make sense?  
+                self.get_balances()                                
             except Exception as e:
-                print('Error occured selling on ' + self.symbol)
+                print('Error occured selling all on ' + self.symbol)
                 print(e)                    
                 return      
         else:
