@@ -50,12 +50,43 @@ class Trader:
         # if the sell price is up 8% since the last time we bought, sell everything we have
         # if the sell price is up at all, sell a small amount
                 
+        if ask >= (self.previous_ask * 1.04):
+            try:                    
+                response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
+                print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
+                id = response['id'] + '-SELL_ALL.json'                    
+                with open(os.path.join('orders/', id), 'w') as file:
+                    file.write(json.dumps(response))  
+                self.previous_bid = bid # record buy price at the time we sell, so that we only buy more if its less than what we last sold for - does that make sense?  
+                self.get_balances()                                
+            except Exception as e:
+                print('Error occured selling all on ' + self.symbol)
+                print(e)                                          
+        else:
+            print('Curret sell price is not less than previous one, returning...') 
+
+        if ask > self.previous_ask:
+            if self.coin_balance >= (11 / ask):
+                try:                    
+                    response = exchange.create_order(self.symbol, 'market', 'sell', (self.coin_balance * 0.25) if (self.coin_balance > 44 / ask) else (12 / ask))
+                    print('Created sell order {0} on {1}'.format(response['id'], self.symbol))
+                    id = response['id'] + '-SELL.json'                    
+                    with open(os.path.join('orders/', id), 'w') as file:
+                        file.write(json.dumps(response))         
+                    self.previous_bid = bid           
+                    self.get_balances()
+                except Exception as e:
+                    print('Error occured selling on ' + self.symbol)
+                    print(e)                                    
+            else:
+                print(self.coin + ' balance too low to sell...')  
+        
         if bid < (self.previous_bid * 0.92):
             if self.usdt_balance >= 11: 
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'buy', ((self.usdt_balance * 0.25) / bid) if (self.usdt_balance >= 44) else (11 / bid))
                     print('Created buy order {0} on {1}'.format(response['id'], self.symbol))
-                    id = response['id'] + '-BUY.txt'  
+                    id = response['id'] + '-BUY.json'  
                     with open(os.path.join('orders/', id), 'w') as file:
                         file.write(json.dumps(response))
                     self.previous_bid = bid
@@ -72,7 +103,7 @@ class Trader:
                 try:                    
                     response = exchange.create_order(self.symbol, 'market', 'buy', 11 / bid)
                     print('Created buy order {0} on {1}'.format(response['id'], self.symbol))
-                    id = response['id'] + '-BUY.txt'  
+                    id = response['id'] + '-BUY.json'  
                     with open(os.path.join('orders/', id), 'w') as file:
                         file.write(json.dumps(response))
                     self.previous_bid = bid
@@ -87,33 +118,6 @@ class Trader:
         else:
             print('Current buy price is not less than previous one, checking sell price...')
         
-        #if ask > (self.previous_ask * 1.04):
-        #    if self.coin_balance >= (11 / ask):
-        #        try:                    
-        #            response = exchange.create_order(self.symbol, 'market', 'sell', (self.coin_balance * 0.25) if (self.coin_balance > 44 / ask) else (12 / ask))
-        #            print('Created sell order {0} on {1}'.format(response['id'], self.symbol))
-        #            id = response['id'] + '-SELL.txt'                    
-        #            with open(os.path.join('orders/', id), 'w') as file:
-        #                file.write(json.dumps(response))         
-        #            self.previous_bid = bid           
-        #            self.get_balances()
-        #        except Exception as e:
-        #            print('Error occured selling on ' + self.symbol)
-        #            print(e)                                    
-        #    else:
-        #        print(self.coin + ' balance too low to sell...')  
-        if ask >= (self.previous_ask * 1.04):
-            try:                    
-                response = exchange.create_order(self.symbol, 'market', 'sell', self.coin_balance)
-                print('Created sell all order {0} on {1}'.format(response['id'], self.symbol))
-                id = response['id'] + '-SELL_ALL.txt'                    
-                with open(os.path.join('orders/', id), 'w') as file:
-                    file.write(json.dumps(response))  
-                self.previous_bid = bid # record buy price at the time we sell, so that we only buy more if its less than what we last sold for - does that make sense?  
-                self.get_balances()                                
-            except Exception as e:
-                print('Error occured selling all on ' + self.symbol)
-                print(e)                                          
-        else:
-            print('Curret sell price is not less than previous one, returning...')  
+        
+         
 

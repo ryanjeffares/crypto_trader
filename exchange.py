@@ -14,9 +14,9 @@ exchange = exchange_class({
 def get_full_balance():
     balance = exchange.fetch_balance()
     for coin in balance['info']['balances']:
-            if float(coin['free']) > 0:
-                name = coin['asset']
-                free = coin['free']
-                locked = coin['locked']
-                print("{0} of {1} free, {2} locked.".format(free, name, locked))
+        if float(coin['free']) > 0:
+            name = coin['asset']
+            free = coin['free']
+            locked = coin['locked']
+            print("{0} of {1} free, {2} locked.".format(free, name, locked))
 

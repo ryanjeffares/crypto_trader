@@ -7,7 +7,7 @@ from exchange import get_full_balance
 if __name__ == "__main__":
     try:    # network errors do be wildin so lots of try/except
         get_full_balance()
-        coins = ['1INCH','BNB','ETH','BTC']
+        coins = ['1INCH','BNB','ETH','BTC','XRP','LTC','TRX','AAVE']
         traders = list()
 
         for coin in coins:
